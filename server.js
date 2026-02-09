@@ -46,7 +46,7 @@ let detectedVoicemails = [];
 let voicemailPhrases = [];
 
 // Intervalo de polling en ms
-const POLLING_INTERVAL = 3000; // 3 segundos
+const POLLING_INTERVAL = 1000; // 1 segundo (más rápido para detectar conversaciones)
 
 // ============================================================================
 // FUNCIONES DE CARGA DE FRASES
@@ -527,7 +527,7 @@ console.log(`
 ║   🎯 VOICEMAIL DETECTOR - ElevenLabs Conversational AI   ║
 ║                                                           ║
 ║   Arquitectura:                                           ║
-║   • Polling cada ${POLLING_INTERVAL/1000}s para detectar conversaciones        ║
+║   • Polling cada 1s para detectar conversaciones          ║
 ║   • Monitor WebSocket individual por conversación         ║
 ║   • Detección por palabras clave + timeout                ║
 ║                                                           ║
