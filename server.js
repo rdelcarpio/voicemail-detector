@@ -141,6 +141,8 @@ async function pollActiveConversations() {
       if (!knownConversationIds.has(convId)) {
         knownConversationIds.add(convId);
         console.log(`\n📱 Nueva conversación detectada: ${convId}`);
+        console.log(`   Status: ${conv.status}`);
+        console.log(`   Start time: ${conv.start_time || conv.created_at || 'unknown'}`);
         connectToConversationMonitor(convId);
       }
     }
@@ -195,10 +197,16 @@ function connectToConversationMonitor(conversationId) {
   // Evento: Mensaje recibido
   ws.on('message', (data) => {
     try {
-      const message = JSON.parse(data.toString());
+      const rawData = data.toString();
+      const message = JSON.parse(rawData);
+
+      // DEBUG: Log todos los mensajes para ver qué llega
+      console.log(`📨 [${conversationId.slice(-12)}] RAW EVENT:`, JSON.stringify(message, null, 2));
+
       processMonitorMessage(conversationId, message);
     } catch (error) {
-      // Algunos mensajes pueden no ser JSON
+      // Log mensajes que no son JSON
+      console.log(`📨 [${conversationId.slice(-12)}] NON-JSON:`, data.toString().slice(0, 200));
     }
   });
 
@@ -209,7 +217,12 @@ function connectToConversationMonitor(conversationId) {
 
   // Evento: Conexión cerrada
   ws.on('close', (code, reason) => {
-    console.log(`📴 Monitor cerrado: ${conversationId.slice(-12)} (código: ${code})`);
+    const reasonStr = reason ? reason.toString() : 'sin razón';
+    console.log(`📴 Monitor cerrado: ${conversationId.slice(-12)}`);
+    console.log(`   Código: ${code}, Razón: ${reasonStr}`);
+    if (code === 1008) {
+      console.log(`   ⚠️ Código 1008 = Policy Violation - posible problema de permisos o conversación terminada`);
+    }
     cleanupConversation(conversationId);
   });
 }
